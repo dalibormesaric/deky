@@ -9,6 +9,12 @@ env GOOS=linux GOARCH=arm GOARM=6 go build -o deky
 scp deky pi@raspberrypizero.local:~/deky
 ```
 
+### Use
+
+``` sh
+curl raspberrypizero.local:8080/Hello
+```
+
 ## Hardware components
 
 [Raspberry Pi Zero](https://www.raspberrypi.com/products/raspberry-pi-zero/)
