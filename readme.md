@@ -15,6 +15,13 @@ scp deky pi@raspberrypizero.local:~/deky
 curl raspberrypizero.local:8080/Hello
 ```
 
+### On RpiZero
+
+To show console again - SIGINT to close all fbi processes:
+``` sh
+killall -2 fbi
+```
+
 ## Hardware components
 
 [Raspberry Pi Zero](https://www.raspberrypi.com/products/raspberry-pi-zero/)
