@@ -1,18 +1,15 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"image"
 	"image/color"
-	"image/png"
-	"io"
+	"image/draw"
 	"net/http"
-	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/golang/freetype/truetype"
+	"github.com/gonutz/framebuffer"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/math/fixed"
@@ -31,15 +28,17 @@ func main() {
 		s := strings.Split(r.URL.Path, "/")
 
 		img := image.NewRGBA(image.Rect(0, 0, 320, 240))
+		draw.Draw(img, img.Bounds(), &image.Uniform{color.RGBA{255, 255, 255, 255}}, image.ZP, draw.Src)
 		x, y := 0, 40
 		addLabel(img, x, y, s[1])
-		buf := new(bytes.Buffer)
-		png.Encode(buf, img)
 
-		file, _ := os.Create("img.png")
-		io.Copy(file, buf)
+		fb, err := framebuffer.Open("/dev/fb1")
+		if err != nil {
+			panic(err)
+		}
+		defer fb.Close()
 
-		execute()
+		draw.Draw(fb, fb.Bounds(), img, image.ZP, draw.Src)
 	})
 	fmt.Print(srv.ListenAndServe())
 }
@@ -59,18 +58,4 @@ func addLabel(img *image.RGBA, x, y int, label string) {
 		Dot:  point,
 	}
 	d.DrawString(label)
-}
-
-// https://stackoverflow.com/questions/6182369/exec-a-shell-command-in-go
-func execute() {
-	cmd := exec.Command("fbi", "-T", "2", "-d", "/dev/fb1", "-noverbose", "-a", "img.png")
-	stdout, err := cmd.Output()
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Print the output
-	fmt.Println(string(stdout))
 }

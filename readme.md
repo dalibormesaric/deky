@@ -4,8 +4,20 @@ Idea is to have two programs, one running on raspberry pi zero and other on the 
 
 ## Build
 
+To see which Raspbian version is on Raspberry Pi Zero, run:
+cat /etc/os-release
+For me it was bullseye
+
+Then download compiler from:
+https://sourceforge.net/projects/raspberry-pi-cross-compilers/
+I downloaded https://sourceforge.net/projects/raspberry-pi-cross-compilers/files/Raspberry%20Pi%20GCC%20Cross-Compiler%20Toolchains/Bullseye/GCC%2010.3.0/Raspberry%20Pi%201%2C%20Zero/
+Using wget https://downloads.sourceforge.net/project/raspberry-pi-cross-compilers/Raspberry%20Pi%20GCC%20Cross-Compiler%20Toolchains/Bullseye/GCC%2010.3.0/Raspberry%20Pi%201%2C%20Zero/cross-gcc-10.3.0-pi_0-1.tar.gz
+And extracted using tar --extract -f cross-gcc-10.3.0-pi_0-1.tar.gz
+
+Then when building we can point to use that gcc
+
 ``` sh
-env GOOS=linux GOARCH=arm GOARM=6 go build -o deky
+env CGO_ENABLED=1 CC=~/cross-pi-gcc-10.3.0-0/bin/arm-linux-gnueabihf-gcc GOOS=linux GOARCH=arm GOARM=6 go build -o deky
 scp deky pi@raspberrypizero.local:~/deky
 ```
 
@@ -15,11 +27,24 @@ scp deky pi@raspberrypizero.local:~/deky
 curl raspberrypizero.local:8080/Hello
 ```
 
-### On RpiZero
-
-To show console again - SIGINT to close all fbi processes:
 ``` sh
-killall -2 fbi
+sudo sh -c "TERM=linux setterm -foreground black -cursor off -clear all >/dev/tty0"
+sudo ./deky
+```
+
+## On PC
+
+### Share internet with RpiZero
+
+> https://solarianprogrammer.com/2018/12/07/raspberry-pi-zero-internet-usb/
+
+## On RpiZero
+
+### Installation
+
+``` sh
+cd Raspberry-Pi-Installer-Scripts
+sudo python3 adafruit-pitft.py --display=22 --rotation=90 --install-type=fbcp
 ```
 
 ## Hardware components
